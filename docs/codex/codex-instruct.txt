@@ -1,0 +1,28 @@
+# WhekeOS Military-Grade Bootloader Development Directive
+                                                                          ## Core Standard
+                                                                          Implement military-grade engineering for the WhekeOS bootloader using real shell logic, cryptographic session integrity, deterministic stage execution, hardened stage isolation, and clean terminal-state control.
+                                                                          This project is a headless Alpine Linux / Termux-compatible T-UI bootloader environment focused on Māori digital independence.
+                                                                          All visible system identity, animation labels, asset naming, and boot-stage language must align with Māori digital independence themes using Te Reo Māori terms only where project identity is displayed.
+
+Approved identity terms:
+
+- MDI
+- WhekeOS                                                                 - Te Wheke
+- Te Ruru
+
+No English translation labels should be displayed in the visual bootloader unless required for debugging logs or shell comments.                    
+“Military-grade” in this repository means disciplined, cryptographically traceable, bounded, deterministic, terminal-safe, and failure-aware engineering. Do not claim certification, secure enclave, verified boot, TPM, kernel lockdown, or unbreakable security unless actually implemented.
+
+## Current Source Context
+                                                                          The current baseline is `WhekeOS.sh`.
+
+Codex must inspect the existing script before making changes.
+
+Do not rewrite the whole system unless unavoidable.                       
+Preserve the current `/opt/mdi` runtime structure unless explicitly instructed otherwise.                                                           
+Expected runtime layout:
+                                                                          ```sh
+/opt/mdi/bin                                                              /opt/mdi/boot
+/opt/mdi/tui                                                              /opt/mdi/state
+/opt/mdi/log
+/opt/mdi/art

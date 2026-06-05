@@ -1,0 +1,23 @@
+# OS/editor
+.DS_Store
+Thumbs.db
+*.swp
+*.tmp
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Node
+node_modules/
+
+# Generated/build output
+tmp/
+build/
+dist/
+*.log
+
+# Large generated media
+*.mp4
+*.mov

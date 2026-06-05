@@ -1,0 +1,30 @@
+STAGE 1: MDI BOOT
+- show MDI logo
+- log: root identity check
+- clear
+- log: runtime channel lock
+- clear
+- log: handoff to Kaihaumaru
+- clear
+
+STAGE 2: KAIHAUMARU SECURITY BOOT
+- show lock logo (red/yellow)
+- log: boundary audit
+- clear
+- log: policy seal
+- clear
+- log: encryption attestation
+- clear
+
+STAGE 3: WHEKEOS BOOT
+- show owl left
+- clear
+- show owl right
+- clear
+- show owl front fixed
+- log: WhekeOS mesh stable
+- clear
+
+STAGE 4: INTERFACE HANDOFF
+- log: interface online
+- fixed prompt: user@hostname ~$

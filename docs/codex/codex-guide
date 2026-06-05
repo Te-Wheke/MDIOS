@@ -1,0 +1,4 @@
+Replace all previous references to green cmatrix styling.
+
+The matrix sidefall effect must use a red military/security colour theme and must behave as an isolated overlay layer. It must not be coupled to the main boot renderer. It must not call global clear. It must not overwrite main boot frames or logs. It must only draw into three reserved right-side columns and clean those columns itself. If t
+erminal dimensions cannot safely reserve this layer, disable the effect silently and continue boot.

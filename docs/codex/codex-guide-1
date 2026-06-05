@@ -1,0 +1,843 @@
+You are Codex operating in controlled implementation mode.
+
+Project:
+WhekeOS.sh staged military-grade ANSI/ASCII boot animation redesign.
+
+Primary source:
+Use the existing WhekeOS.sh sourcefile as the implementation source of truth.
+
+Primary objective:
+Upgrade the existing WhekeOS.sh boot experience into a robust, stable, cinematic, military-grade terminal boot sequence with strict stage isolation, deterministic ANSI/ASCII rendering, event-triggered effects, and clean terminal handoff.
+
+This is not a full rewrite.
+Preserve the existing installer/heredoc structure, command surface, diagnostics, /opt/mdi layout, and generated-script pattern unless a change is directly required by the staged boot contract.
+
+────────────────────────────────────────
+NON-NEGOTIABLE RULES
+────────────────────────────────────────
+
+Do not use placeholder images.
+Do not use placeholder ASCII.
+Do not invent missing filenames.
+Do not invent fake logos.
+Do not use guessed art.
+Do not reference missing files.
+Do not add external visual dependencies.
+Do not require cmatrix, figlet, toilet, lolcat, chafa, viu, jp2a, libcaca, Python, Node, or network access.
+
+Only use real uploaded/source assets already available to the project.
+
+If approved ASCII artwork for a source asset is not available, leave the existing behaviour unchanged or use plain terminal-safe text. Never fake image-derived art.
+
+MDI(1).jpg is not a logo.
+MDI(1).jpg is the MDI ASCII header source.
+It must be rendered as a gold terminal header.
+
+The matrix effect must be red, not green.
+The matrix effect must be a separate right-side overlay layer, not part of the main boot animation.
+
+Every boot stage must clear the terminal after completion.
+
+No stage may leave visual residue behind.
+
+No animation failure may block boot completion.
+
+────────────────────────────────────────
+REAL SOURCE ASSET CONTRACT
+────────────────────────────────────────
+
+Use this asset mapping only:
+
+Stage 1 — MDI:
+- Source: MDI(1).jpg
+- Role: gold ASCII header reference
+- Not a logo conversion target
+
+Stage 2 — Kaihaumaru:
+- Source: uploaded lock/security PNG
+- Role: security lock / hardening authority visual source
+
+Stage 3 — WhekeOS:
+- Source A: uploaded WhekeOS/octopus PNG
+- Role: WhekeOS identity visual source
+- Source B: uploaded WhekeOS boot/loading PNG
+- Role: fixed-corner boot/loading spinner source
+
+Stage 4 — Interface Handoff:
+- Source: no image
+- Role: final clean terminal prompt
+
+Do not reference:
+- Lock.png unless the uploaded lock source has actually been renamed to Lock.png
+- Whekeos.png unless the uploaded WhekeOS source has actually been renamed to Whekeos.png
+- Owl1.jpg unless that exact file exists
+- MDI1.png
+- lock1.png
+- any guessed replacement filename
+
+────────────────────────────────────────
+REQUIRED BOOT ORDER
+────────────────────────────────────────
+
+The boot sequence must execute in this exact order:
+
+1. MDI
+2. Kaihaumaru
+3. WhekeOS
+4. Interface Handoff
+
+Required phase functions:
+
+mdi_phase_mdi_boot()
+mdi_phase_kaihaumaru_boot()
+mdi_phase_whekeos_boot()
+mdi_phase_interface_handoff()
+
+Update the intro sequence to this structure:
+
+mdi_intro_sequence() {
+  case "$MDI_BOOT_STYLE" in
+    minimal)
+      mdi_phase_mdi_boot
+      mdi_phase_interface_handoff
+      ;;
+    fast)
+      mdi_phase_mdi_boot
+      mdi_phase_kaihaumaru_boot
+      mdi_phase_interface_handoff
+      ;;
+    cinematic|security|*)
+      mdi_phase_mdi_boot
+      mdi_phase_kaihaumaru_boot
+      mdi_phase_whekeos_boot
+      mdi_phase_interface_handoff
+      ;;
+  esac
+}
+
+Do not reorder these stages.
+Do not merge these stages.
+Do not let one stage inherit another stage’s palette or animation layer.
+
+────────────────────────────────────────
+STAGE 1 — MDI
+────────────────────────────────────────
+
+Purpose:
+- system origin
+- identity authority
+- startup attestation
+- controlled handoff to Kaihaumaru
+
+Source:
+- MDI(1).jpg
+
+Important:
+- Treat MDI(1).jpg as an ASCII header source, not a logo.
+- MDI must render as a gold ASCII header.
+- Do not colour MDI green.
+- Do not convert MDI into a separate fake logo.
+
+Palette:
+
+GOLD="$(printf '\033[38;5;220m')"
+GOLD_BOLD="$(printf '\033[1;38;5;220m')"
+DIM_GOLD="$(printf '\033[38;5;178m')"
+WARM_WHITE="$(printf '\033[38;5;230m')"
+RST="$(printf '\033[0m')"
+
+Stage cadence:
+
+clear
+render gold MDI ASCII header
+sleep
+clear
+[MDI] identity authority detected
+clear
+[MDI] startup attestation initialised
+clear
+[MDI] handoff approved: Kaihaumaru
+clear
+
+MDI should be clean, ceremonial, and authoritative.
+No heavy matrix effects.
+No red security theme.
+No random fake code.
+
+────────────────────────────────────────
+STAGE 2 — KAIHAUMARU
+────────────────────────────────────────
+
+Purpose:
+- isolated security bootloader
+- runtime hardening
+- integrity seal
+- access-control authority
+- handoff to WhekeOS
+
+Source:
+- uploaded lock/security PNG
+
+Palette:
+
+SEC_RED="$(printf '\033[1;31m')"
+SEC_DARK_RED="$(printf '\033[38;5;88m')"
+SEC_YELLOW="$(printf '\033[1;33m')"
+SEC_AMBER="$(printf '\033[38;5;214m')"
+SEC_WHITE="$(printf '\033[1;37m')"
+RST="$(printf '\033[0m')"
+
+Style:
+- military-grade security boot
+- red/yellow authority
+- severe, hardened, defensive
+- separate from the rest of the boot flow
+- longest stage
+
+Allowed cinematic style:
+- Red Hat style security terminal
+- secure-facility boot
+- hardening gates
+- lock seal
+- integrity perimeter
+- policy enforcement
+- bounded scan bars
+
+Not allowed:
+- random fake hacking text
+- fake unreadable glyph dumps
+- endless animation loops
+- excessive flashing
+- overlapping lock frames and logs
+- external animation packages
+
+Stage cadence:
+
+clear
+render Kaihaumaru lock frame
+clear
+[KAIHAUMARU] perimeter seal initialised
+clear
+render lock frame variant
+clear
+[KAIHAUMARU] runtime hardening active
+clear
+render lock frame fixed
+clear
+[KAIHAUMARU] policy gate passed
+clear
+[KAIHAUMARU] handoff approved: WhekeOS
+clear
+
+Kaihaumaru should feel like a separate boot authority, not a normal decorative stage.
+
+────────────────────────────────────────
+STAGE 3 — WHEKEOS
+────────────────────────────────────────
+
+Purpose:
+- WhekeOS identity
+- local mesh readiness
+- operational boot
+- cinematic intelligence layer
+- handoff to interface
+
+Sources:
+- uploaded WhekeOS/octopus PNG
+- uploaded WhekeOS boot/loading PNG
+
+Palette:
+
+WHEKE_GREY="$(printf '\033[38;5;245m')"
+WHEKE_DIM="$(printf '\033[38;5;240m')"
+WHEKE_BLUE="$(printf '\033[38;5;39m')"
+WHEKE_CYAN="$(printf '\033[1;36m')"
+WHEKE_WHITE="$(printf '\033[1;37m')"
+RST="$(printf '\033[0m')"
+
+Behaviour:
+- render WhekeOS identity frame where approved artwork exists
+- render boot/loading spinner as fixed-corner animation if terminal size permits
+- trigger red right-side matrix overlay only after the WhekeOS loader passes
+- matrix overlay must not cover primary boot animation or logs
+- matrix overlay must terminate before Stage 4
+- full terminal clear must occur before Interface Handoff
+
+Stage cadence:
+
+clear
+render WhekeOS identity/loading frame
+clear
+[WHEKEOS] local runtime path verified
+clear
+[WHEKEOS] local mesh loader passed
+trigger red isolated right-side matrix layer
+clear
+[WHEKEOS] handoff approved: interface
+clear
+
+────────────────────────────────────────
+RED MATRIX OVERLAY CONTRACT
+────────────────────────────────────────
+
+The matrix effect must be red, not green.
+
+The matrix effect is not part of the WhekeOS frame.
+It is a separate overlay layer with its own bounds, its own cleanup, and no global clear authority.
+
+Layer model:
+
+Layer 0: terminal background and global clear
+Layer 1: main boot animation / logo / loader
+Layer 2: log output
+Layer 3: red right-side matrix overlay
+
+Layer 3 must be isolated.
+
+The red matrix overlay must:
+- draw only inside reserved right-side columns
+- use no more than three vertical streams
+- not write into logo/header frame space
+- not write into log output rows
+- not call global clear
+- not call mdi_clear
+- not call tput clear
+- not print '\033[2J'
+- not reset the whole terminal
+- clean only its own reserved columns
+- be disabled automatically on terminals too small to safely reserve the layer
+- stop before Stage 4 Interface Handoff
+
+Matrix colours:
+
+MATRIX_RED="$(printf '\033[38;5;196m')"
+MATRIX_DARKRED="$(printf '\033[38;5;88m')"
+MATRIX_DIMRED="$(printf '\033[38;5;52m')"
+MATRIX_AMBER="$(printf '\033[38;5;214m')"
+MATRIX_RST="$(printf '\033[0m')"
+
+Required matrix layer helpers:
+
+mdi_matrix_bounds() {
+  COLS="$(mdi_term_cols)"
+  ROWS="$(mdi_term_rows)"
+
+  [ "$COLS" -lt 90 ] && return 1
+  [ "$ROWS" -lt 22 ] && return 1
+
+  MATRIX_COL_1=$((COLS - 10))
+  MATRIX_COL_2=$((COLS - 7))
+  MATRIX_COL_3=$((COLS - 4))
+  MATRIX_ROW_START=2
+  MATRIX_ROW_END=$((ROWS - 3))
+
+  return 0
+}
+
+mdi_matrix_clear_layer() {
+  mdi_matrix_bounds || return 0
+
+  row="$MATRIX_ROW_START"
+  while [ "$row" -le "$MATRIX_ROW_END" ]; do
+    mdi_move "$row" "$MATRIX_COL_1"; printf ' '
+    mdi_move "$row" "$MATRIX_COL_2"; printf ' '
+    mdi_move "$row" "$MATRIX_COL_3"; printf ' '
+    row=$((row + 1))
+  done
+}
+
+Required matrix effect:
+
+mdi_fx_matrix_sidefall() {
+  mdi_matrix_bounds || return 0
+
+  CHARS='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%*+=-'
+  LEN=44
+  frame=1
+
+  while [ "$frame" -le 16 ]; do
+    row="$MATRIX_ROW_START"
+
+    while [ "$row" -le "$MATRIX_ROW_END" ]; do
+      i1=$(( (frame + row) % LEN + 1 ))
+      i2=$(( (frame + row + 9) % LEN + 1 ))
+      i3=$(( (frame + row + 17) % LEN + 1 ))
+
+      c1="$(printf '%s' "$CHARS" | cut -c "$i1")"
+      c2="$(printf '%s' "$CHARS" | cut -c "$i2")"
+      c3="$(printf '%s' "$CHARS" | cut -c "$i3")"
+
+      mdi_move "$row" "$MATRIX_COL_1"
+      printf '%b%s%b' "$MATRIX_DIMRED" "$c1" "$MATRIX_RST"
+
+      if [ "$row" -gt "$((MATRIX_ROW_START + 2))" ]; then
+        mdi_move "$row" "$MATRIX_COL_2"
+        printf '%b%s%b' "$MATRIX_RED" "$c2" "$MATRIX_RST"
+      fi
+
+      if [ "$row" -gt "$((MATRIX_ROW_START + 5))" ]; then
+        mdi_move "$row" "$MATRIX_COL_3"
+        printf '%b%s%b' "$MATRIX_DARKRED" "$c3" "$MATRIX_RST"
+      fi
+
+      row=$((row + 1))
+    done
+
+    sleep 0.05
+
+    # Clear only the matrix layer. Never clear the whole terminal here.
+    mdi_matrix_clear_layer
+
+    frame=$((frame + 1))
+  done
+
+  mdi_matrix_clear_layer
+}
+
+Codex may improve the implementation, but must preserve:
+- red colour theme
+- right-side only
+- three streams maximum
+- isolated overlay layer
+- no global clear
+- no overlap with main boot display
+- bounded runtime
+- self-cleaning reserved columns
+- automatic disable on small terminals
+
+────────────────────────────────────────
+STAGE 4 — INTERFACE HANDOFF
+────────────────────────────────────────
+
+Purpose:
+- final usable terminal
+- clean handoff
+- prompt binding
+- session readiness
+
+No graphics must remain after this stage.
+
+Prompt format:
+
+user@hostname ~$
+
+Palette:
+
+PROMPT_USER="$(printf '\033[1;32m')"
+PROMPT_AT="$(printf '\033[1;35m')"
+PROMPT_HOST="$(printf '\033[1;36m')"
+PROMPT_PATH="$(printf '\033[1;37m')"
+RST="$(printf '\033[0m')"
+
+Required prompt function:
+
+mdi_prompt() {
+  U="${USER:-user}"
+  H="$(hostname 2>/dev/null || printf 'hostname')"
+
+  printf '%b%s%b' "$PROMPT_USER" "$U" "$RST"
+  printf '%b@%b' "$PROMPT_AT" "$RST"
+  printf '%b%s%b' "$PROMPT_HOST" "$H" "$RST"
+  printf ' '
+  printf '%b~$%b ' "$PROMPT_PATH" "$RST"
+}
+
+Stage behaviour:
+- reset ANSI
+- show cursor
+- clear terminal completely
+- print final readiness line
+- show prompt
+- leave terminal usable
+
+No animation or matrix effect may remain after this point.
+
+────────────────────────────────────────
+ANSI STABILITY HELPERS
+────────────────────────────────────────
+
+Implement or preserve robust ANSI helpers:
+
+mdi_reset() {
+  printf '\033[0m'
+}
+
+mdi_clear() {
+  printf '\033[2J\033[H'
+}
+
+mdi_hide_cursor() {
+  printf '\033[?25l'
+}
+
+mdi_show_cursor() {
+  printf '\033[?25h'
+}
+
+mdi_move() {
+  printf '\033[%s;%sH' "$1" "$2"
+}
+
+mdi_clear_line() {
+  printf '\033[2K'
+}
+
+mdi_term_cols() {
+  tput cols 2>/dev/null || printf '80'
+}
+
+mdi_term_rows() {
+  tput lines 2>/dev/null || printf '24'
+}
+
+mdi_safe_call() {
+  "$@" 2>/dev/null || true
+}
+
+Required traps:
+
+trap 'mdi_reset; mdi_show_cursor; mdi_clear; exit 130' INT TERM
+trap 'mdi_reset; mdi_show_cursor' EXIT
+
+Animation functions must always restore terminal state.
+No animation failure may block boot.
+
+────────────────────────────────────────
+TERMINAL SAFETY
+────────────────────────────────────────
+
+Minimum cinematic mode:
+- 80 columns
+- 24 rows
+
+Matrix overlay mode:
+- minimum 90 columns
+- minimum 22 rows
+
+If terminal is smaller:
+- disable matrix overlay
+- reduce animation density
+- avoid wide frames
+- use plain logs
+- still complete boot cleanly
+
+Do not allow line wrapping.
+Do not print frames wider than terminal width.
+Do not use unbounded random text.
+Do not use Unicode-heavy layouts unless already proven safe in the existing Termux environment.
+
+Prefer portable ASCII:
+# @ % * + = - : . / \ | _ [ ] < >
+
+Use block or box glyphs only where the existing source already proves they render safely.
+
+────────────────────────────────────────
+EVENT-TRIGGERED EFFECT SYSTEM
+────────────────────────────────────────
+
+Implement a simple event trigger model.
+
+Required function:
+
+mdi_trigger_fx() {
+  EVENT="$1"
+
+  case "$EVENT" in
+    mdi.attest.pass)
+      mdi_fx_gold_pulse
+      ;;
+    kaihaumaru.harden.pass)
+      mdi_fx_lock_seal
+      ;;
+    whekeos.loader.pass)
+      mdi_fx_matrix_sidefall
+      ;;
+    interface.ready)
+      mdi_fx_prompt_flash
+      ;;
+  esac
+}
+
+Required effects:
+
+mdi_fx_gold_pulse()
+mdi_fx_lock_seal()
+mdi_fx_matrix_sidefall()
+mdi_fx_prompt_flash()
+
+Rules:
+- effects are optional
+- effects are bounded
+- effects must not alter stage order
+- effects must not obscure log output
+- effects must respect terminal width and height
+- effects must always return control to caller
+- matrix effect runs only for whekeos.loader.pass
+- matrix effect never runs during MDI or Kaihaumaru
+- lock effect never runs during WhekeOS
+- gold pulse never runs during Kaihaumaru or WhekeOS
+
+Required loader pass helper:
+
+mdi_loader_pass() {
+  LABEL="$1"
+  EVENT="$2"
+
+  printf '%b[PASS]%b %s\n' "$PASS" "$RST" "$LABEL"
+  sleep 0.25
+  mdi_safe_call mdi_trigger_fx "$EVENT"
+  sleep 0.20
+  mdi_clear
+}
+
+Use:
+
+mdi_loader_pass "MDI identity authority verified" "mdi.attest.pass"
+mdi_loader_pass "Kaihaumaru hardening profile sealed" "kaihaumaru.harden.pass"
+mdi_loader_pass "WhekeOS local mesh loader passed" "whekeos.loader.pass"
+mdi_loader_pass "Interface handoff ready" "interface.ready"
+
+Do not run effects before the relevant loader passes.
+
+────────────────────────────────────────
+ASCII EMBEDDING RULES
+────────────────────────────────────────
+
+Approved ASCII frame functions must use single-quoted heredocs:
+
+mdi_render_mdi_header() {
+  printf '%b' "$GOLD_BOLD"
+  cat <<'EOF'
+APPROVED MDI ASCII HEADER ONLY
+EOF
+  printf '%b' "$RST"
+}
+
+Rules:
+- keep colour outside the heredoc
+- do not embed raw ANSI inside the artwork unless unavoidable
+- do not use unapproved placeholder text as artwork
+- do not use fake logo blocks
+- do not use question-mark corruption blocks
+- do not use temporary replacement art pretending to be final
+
+Correct pattern:
+
+printf '%b' "$COLOUR"
+cat <<'EOF'
+ASCII ART
+EOF
+printf '%b' "$RST"
+
+Incorrect pattern:
+
+cat <<EOF
+\033[33mFAKE PLACEHOLDER LOGO\033[0m
+EOF
+
+────────────────────────────────────────
+CLEAR-SCREEN DISCIPLINE
+────────────────────────────────────────
+
+Every stage must end with:
+
+mdi_reset
+mdi_show_cursor
+sleep 0.10
+mdi_clear
+
+During animations:
+- use cursor positioning for local effects
+- avoid global clear inside tight loops unless intentional
+- never globally clear from the matrix layer
+- clear after each major log event
+- clear after each stage
+
+Required stage pattern:
+
+mdi_phase_example() {
+  mdi_hide_cursor
+  mdi_clear
+
+  # render frame
+  # sleep
+  mdi_clear
+
+  # render log
+  # sleep
+  mdi_clear
+
+  # loader pass
+  # trigger effect
+  # sleep
+
+  mdi_reset
+  mdi_show_cursor
+  mdi_clear
+}
+
+────────────────────────────────────────
+TIMING TARGETS
+────────────────────────────────────────
+
+Default cinematic/security mode:
+
+MDI:          3–4 seconds
+Kaihaumaru:   8–10 seconds
+WhekeOS:      5–7 seconds
+Interface:    1–2 seconds
+
+Total:        17–23 seconds
+
+Fast mode:
+
+MDI:          1 second
+Kaihaumaru:   2 seconds
+WhekeOS:      skipped or 1 second
+Interface:    immediate
+
+Total:        4–6 seconds
+
+Minimal mode:
+- MDI header
+- basic checks
+- interface handoff
+- no animation effects
+
+Default boot must not exceed 30 seconds.
+
+────────────────────────────────────────
+HOLLYWOOD STYLE BOUNDARIES
+────────────────────────────────────────
+
+Allowed:
+- gold pulse for MDI
+- lock seal sweep for Kaihaumaru
+- red right-side matrix rain for WhekeOS
+- fixed-corner spinner if terminal size permits
+- short scanning bars
+- bracketed authority logs
+- red/yellow security panels
+- clean cinematic pauses
+
+Not allowed:
+- unreadable fake code dumps
+- random nonsense covering the screen
+- excessive flashing
+- infinite animations
+- full-screen matrix effect
+- external animation dependencies
+- Unicode-only layouts that fail in Termux
+- any placeholder art
+
+All animation must be shell-native, local-first, offline-capable, and terminal-safe.
+
+────────────────────────────────────────
+SOURCEFILE PRESERVATION RULES
+────────────────────────────────────────
+
+Preserve:
+- WhekeOS.sh heredoc installer structure
+- /opt/mdi layout
+- mdi-boot entrypoint
+- existing command surface
+- diagnostics boot checks
+- settings file pattern
+- shell compatibility
+- existing execution chain unless directly required by four-stage contract
+
+Allowed changes:
+- add ANSI helper functions
+- add terminal size guards
+- add bounded animation functions
+- add event trigger functions
+- refactor three phase functions into four phase functions
+- update prompt rendering
+- replace approved ASCII frame blocks
+- repair corrupted placeholder glyph blocks only when approved replacements exist
+
+Blocked changes:
+- no full rewrite
+- no external dependencies
+- no fake image references
+- no invented filenames
+- no placeholder ASCII
+- no boot diagnostic removal
+- no cloud/network dependency
+- no background daemon requirement
+- no unrelated architecture
+
+────────────────────────────────────────
+VALIDATION REQUIREMENTS
+────────────────────────────────────────
+
+After editing, run:
+
+sh -n WhekeOS.sh
+
+If generated shell files exist after install:
+
+find /opt/mdi -type f -name "*.sh" -exec sh -n {} \;
+
+Inspect expected phase functions:
+
+grep -n "mdi_phase_" WhekeOS.sh
+
+Expected phase functions:
+- mdi_phase_mdi_boot
+- mdi_phase_kaihaumaru_boot
+- mdi_phase_whekeos_boot
+- mdi_phase_interface_handoff
+
+Inspect expected event/effect functions:
+
+grep -n "mdi_trigger_fx" WhekeOS.sh
+grep -n "mdi_fx_gold_pulse" WhekeOS.sh
+grep -n "mdi_fx_lock_seal" WhekeOS.sh
+grep -n "mdi_fx_matrix_sidefall" WhekeOS.sh
+grep -n "mdi_fx_prompt_flash" WhekeOS.sh
+grep -n "mdi_prompt" WhekeOS.sh
+
+No remaining placeholder markers:
+
+grep -n "PLACEHOLDER\|TODO ART\|FAKE LOGO\|????" WhekeOS.sh && exit 1 || true
+
+Confirm the matrix effect does not call global clear:
+
+Inspect mdi_fx_matrix_sidefall and confirm it does not call:
+- clear
+- mdi_clear
+- tput clear
+- printf '\033[2J'
+- reset
+
+Confirm matrix isolation:
+- only writes to MATRIX_COL_1, MATRIX_COL_2, MATRIX_COL_3
+- calls mdi_matrix_clear_layer for cleanup
+- disables itself when the terminal is too small
+
+────────────────────────────────────────
+FINAL OUTPUT REQUIRED FROM CODEX
+────────────────────────────────────────
+
+Return:
+
+1. Summary of changed functions.
+2. Exact phase order.
+3. Exact event trigger map.
+4. Matrix isolation confirmation.
+5. Prompt confirmation.
+6. Shell syntax validation result.
+7. List of any functions intentionally left unchanged because approved real ASCII art was not available.
+8. Confirmation that no placeholder images, fake filenames, or fake ASCII art were introduced.
+
+End state:
+The boot sequence must behave as:
+
+MDI gold header
+→ Kaihaumaru red/yellow security hardening
+→ WhekeOS identity/loading with isolated red right-side matrix overlay after loader pass
+→ full clear
+→ user@hostname ~$ prompt
+
+All stages must be deterministic, bounded, stable, ANSI-safe, ASCII-safe, offline-capable, and suitable for Termux/headless terminal use.
