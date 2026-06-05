@@ -19,3 +19,5 @@ This repo contains boot-screen assets, ASCII/TUI artwork, animation experiments,
 ## Current focus
 
 Keep boot/TUI work small, stable, terminal-safe, and testable.
+
+8847197850:AAG0rxjIqQCVs_vQnsUj6HZvGcEPH_PAMM4
