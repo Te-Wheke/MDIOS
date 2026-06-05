@@ -1,0 +1,8 @@
+        __  __ ____  ___
+       |  \/  |  _ \|_ _|
+       | |\/| | | | || |
+       | |  | | |_| || |
+       |_|  |_|____/|___|
+
+  Multi-operating system prototype
+  Termux host  →  Alpine PRoot guest

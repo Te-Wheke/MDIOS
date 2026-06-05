@@ -1,0 +1,97 @@
+#!/bin/sh
+set -eu
+
+. /opt/mdi/boot/themes/default.sh
+. /opt/mdi/boot/lib/terminal.sh
+. /opt/mdi/boot/lib/screen-contract.sh
+. /opt/mdi/boot/lib/draw.sh
+. /opt/mdi/boot/lib/cleanup.sh
+. /opt/mdi/boot/lib/assets.sh
+. /opt/mdi/boot/lib/effects.sh
+. /opt/mdi/boot/phases/01-identity.sh
+. /opt/mdi/boot/phases/02-security.sh
+. /opt/mdi/boot/phases/03-control.sh
+
+MDI_PHASE=""
+MDI_DRY_RUN=0
+MDI_DIAG=0
+MDI_NO_ANIMATION=0
+MDI_FORCE_PROFILE=""
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --dry-run) MDI_DRY_RUN=1 ;;
+    --diag) MDI_DIAG=1 ;;
+    --no-animation) MDI_NO_ANIMATION=1 ;;
+    --phase)
+      shift
+      MDI_PHASE="${1:-}"
+      ;;
+    --profile)
+      shift
+      MDI_FORCE_PROFILE="${1:-}"
+      ;;
+    *) printf 'FAIL  %s\n' "$1"; exit 2 ;;
+  esac
+  shift || true
+done
+
+case "$MDI_FORCE_PROFILE" in
+  ""|ultra-compact|phone|tablet|desktop) ;;
+  *) printf 'FAIL  profile\n'; exit 2 ;;
+esac
+
+case "$MDI_PHASE" in
+  ""|identity|security|control) ;;
+  *) printf 'FAIL  phase\n'; exit 2 ;;
+esac
+
+mkdir -p /opt/mdi/state /opt/mdi/log 2>/dev/null || true
+: > /opt/mdi/state/boot-animation-pids 2>/dev/null || true
+
+trap 'mdi_cleanup; exit 130' INT TERM
+trap 'mdi_cleanup' EXIT
+
+mdi_screen_contract
+mdi_assets_discover
+
+mdi_report_contract() {
+  printf 'ROWS=%s\n' "$MDI_ROWS"
+  printf 'COLS=%s\n' "$MDI_COLS"
+  printf 'PROFILE=%s\n' "$MDI_PROFILE"
+  printf 'COLOR=%s\n' "$MDI_COLOR"
+  printf 'TPUT=%s\n' "$MDI_TPUT"
+  printf 'CURSOR=%s\n' "$MDI_CURSOR"
+  printf 'ANIMATION=%s\n' "$MDI_ANIMATION_EFFECTIVE"
+  printf 'ASSET_IDENTITY=%s\n' "${MDI_ASSET_IDENTITY:-missing}"
+  printf 'ASSET_LOCK=%s\n' "${MDI_ASSET_SECURITY:-missing}"
+  printf 'ASSET_OWL=%s\n' "${MDI_ASSET_OWL:-missing}"
+  printf 'MISSING_ASSETS=%s\n' "${MDI_ASSET_MISSING:-none}"
+}
+
+if [ "$MDI_DRY_RUN" -eq 1 ] || [ "$MDI_DIAG" -eq 1 ]; then
+  mdi_report_contract
+  exit 0
+fi
+
+mdi_run_phase() {
+  phase="$1"
+  case "$phase" in
+    identity) mdi_phase_identity ;;
+    security) mdi_phase_security ;;
+    control) mdi_phase_control ;;
+  esac
+}
+
+if [ -n "$MDI_PHASE" ]; then
+  mdi_run_phase "$MDI_PHASE"
+  exit 0
+fi
+
+mdi_phase_identity
+mdi_stop_effects
+mdi_clear_screen
+mdi_phase_security
+mdi_stop_effects
+mdi_clear_screen
+mdi_phase_control

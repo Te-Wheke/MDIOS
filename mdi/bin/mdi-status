@@ -1,0 +1,10 @@
+#!/bin/sh
+printf 'MDI STATUS\n'
+if [ -f /opt/mdi/state/status.env ]; then
+  sed 's/^/  /' /opt/mdi/state/status.env
+else
+  printf '  system=READY\n'
+  printf '  security=LOCKED\n'
+  printf '  network=OFFLINE\n'
+  printf '  mode=TUI\n'
+fi

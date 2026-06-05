@@ -1,0 +1,216 @@
+#!/bin/sh
+
+LOG="/opt/mdi/log/startup.log"
+STATE="/opt/mdi/state/status.env"
+
+mkdir -p /opt/mdi/log /opt/mdi/state
+: > "$LOG"
+: > "$STATE"
+
+PASS="$(printf '\033[1;32mPASS\033[0m')"
+WARN="$(printf '\033[1;33mWARN\033[0m')"
+FAIL="$(printf '\033[1;31mFAIL\033[0m')"
+INFO="$(printf '\033[1;36mINFO\033[0m')"
+
+line() {
+  printf '%s\n' "$1"
+  printf '%s\n' "$1" >> "$LOG"
+}
+
+status_pass() {
+  line "[$PASS] $1"
+}
+
+status_warn() {
+  line "[$WARN] $1"
+}
+
+status_fail() {
+  line "[$FAIL] $1"
+  line ""
+  line "Startup halted."
+  line "Fix the issue, then run: mdi-start"
+  exit 1
+}
+
+status_info() {
+  line "[$INFO] $1"
+}
+
+header() {
+  clear
+  cat <<'BANNER'
+MDI STARTUP
+Multi-operating system prototype
+Runtime: Termux host -> Alpine PRoot guest
+
+BANNER
+}
+
+detect_runtime() {
+  if [ -f /etc/alpine-release ]; then
+    status_pass "Alpine guest detected."
+    echo "RUNTIME=alpine-proot" >> "$STATE"
+  else
+    status_fail "This script must run inside Alpine PRoot."
+  fi
+}
+
+check_dirs() {
+  for d in /opt/mdi /opt/mdi/tui /opt/mdi/log /opt/mdi/state; do
+    [ -d "$d" ] || status_fail "Missing directory: $d"
+  done
+  status_pass "Required MDI directories found."
+}
+
+check_tools() {
+  MISSING=""
+  for c in sh awk sed grep df date clear; do
+    command -v "$c" >/dev/null 2>&1 || MISSING="$MISSING $c"
+  done
+
+  if [ -n "$MISSING" ]; then
+    status_fail "Missing required tools:$MISSING"
+  fi
+
+  status_pass "Required shell tools available."
+}
+
+check_storage() {
+  AVAIL_KB="$(df -k / 2>/dev/null | awk 'NR==2 {print $4}')"
+  USED_PCT="$(df -k / 2>/dev/null | awk 'NR==2 {print $5}' | tr -d '%')"
+
+  [ -n "$AVAIL_KB" ] || status_warn "Storage check unavailable."
+  [ -n "$AVAIL_KB" ] || return 0
+
+  AVAIL_MB=$((AVAIL_KB / 1024))
+
+  if [ "$AVAIL_MB" -lt 1024 ]; then
+    status_fail "Storage too low: ${AVAIL_MB} MB available."
+  fi
+
+  if [ -n "$USED_PCT" ] && [ "$USED_PCT" -ge 90 ]; then
+    status_warn "Storage is ${USED_PCT}% full; prototype may fail during installs or logging."
+  else
+    status_pass "Storage available: ${AVAIL_MB} MB."
+  fi
+
+  echo "STORAGE_AVAILABLE_MB=$AVAIL_MB" >> "$STATE"
+  echo "STORAGE_USED_PERCENT=${USED_PCT:-unknown}" >> "$STATE"
+}
+
+check_network() {
+  if ip route 2>/dev/null | grep -q '^default '; then
+    status_warn "Default route detected. Network appears available."
+    echo "NETWORK=available" >> "$STATE"
+  else
+    status_pass "No default route detected. Offline-first mode active."
+    echo "NETWORK=offline" >> "$STATE"
+  fi
+}
+
+check_battery() {
+  status_info "Battery unavailable inside Alpine PRoot. Host-only check skipped."
+  echo "BATTERY=host-only" >> "$STATE"
+}
+
+show_complete() {
+  cat <<'DONE'
+
+Startup complete.
+
+Type:
+  help     Show MDI commands
+  status   Show current status
+  logs     View startup log
+  shell    Enter raw shell mode
+  clear    Redraw this screen
+  exit     Leave MDI
+
+DONE
+}
+
+mdi_help() {
+  cat <<'HELP'
+MDI commands
+
+  help     Show this command menu
+  status   Show saved startup status
+  logs     View startup log
+  shell    Enter raw Alpine shell mode
+  clear    Clear and redraw startup summary
+  exit     Leave MDI
+
+Notes:
+  This is the controlled MDI TUI.
+  Raw shell commands are hidden unless you type: shell
+HELP
+}
+
+mdi_status() {
+  if [ -f "$STATE" ]; then
+    cat "$STATE"
+  else
+    printf '%s\n' "No status file found."
+  fi
+}
+
+mdi_logs() {
+  if [ -f "$LOG" ]; then
+    cat "$LOG"
+  else
+    printf '%s\n' "No startup log found."
+  fi
+}
+
+mdi_shell() {
+  printf '%s\n' "Entering raw Alpine shell mode."
+  printf '%s\n' "Type exit to return to Termux."
+  exec /bin/sh
+}
+
+command_loop() {
+  while true; do
+    printf 'mdi> '
+    IFS= read -r CMD || exit 0
+
+    case "$CMD" in
+      "" )
+        ;;
+      help|-h|--help )
+        mdi_help
+        ;;
+      status )
+        mdi_status
+        ;;
+      logs|log )
+        mdi_logs
+        ;;
+      shell|sh )
+        mdi_shell
+        ;;
+      clear )
+        header
+        mdi_logs
+        show_complete
+        ;;
+      exit|quit )
+        exit 0
+        ;;
+      * )
+        printf '%s\n' "Unknown MDI command: $CMD"
+        printf '%s\n' "Run: help"
+        ;;
+    esac
+  done
+}
+
+header
+detect_runtime
+check_dirs
+check_tools
+check_storage
+check_network
+check_battery
+show_complete
+command_loop

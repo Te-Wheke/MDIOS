@@ -1,0 +1,13 @@
+#!/bin/sh
+MDI_THEME_NAME="${MDI_THEME:-cyan}"
+MDI_BOOT_STYLE="${MDI_BOOT_STYLE:-security}"
+MDI_VERBOSITY="${MDI_VERBOSITY:-compact}"
+MDI_WARN_PROCEED="${MDI_WARN_PROCEED:-yes}"
+MDI_ANIMATION="${MDI_ANIMATION:-on}"
+MDI_BOOT_SPEED="${MDI_SPEED:-normal}"
+MDI_BOOT_DELAY="0.12"
+case "$MDI_BOOT_SPEED" in
+  fast) MDI_BOOT_DELAY="0.04" ;;
+  slow) MDI_BOOT_DELAY="0.20" ;;
+  cinematic) MDI_BOOT_DELAY="0.28" ;;
+esac
